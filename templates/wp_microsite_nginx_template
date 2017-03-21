@@ -1,0 +1,32 @@
+server {
+    server_name             {{ item.domains[0] }};
+    listen                  443 ssl;
+
+    ssl_certificate         /etc/letsencrypt/live/{{ item.domains[0] }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ item.domains[0] }}/privkey.pem;
+    include                 conf.d/restricted.inc;
+
+    location / {
+        proxy_pass          http://wp-http-pass;
+        proxy_redirect      https:// http://;
+        include             conf.d/proxy_pass.inc;
+    }
+}
+
+server {
+    server_name             {% for domain in item.domains[1:] %} {{ domain }}{% endfor %};
+    listen                  443 ssl ;
+    ssl_certificate         /etc/letsencrypt/live/{{ item.domains[0] }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ item.domains[0] }}/privkey.pem;
+    return                  301 https://{{ item.domains[0] }}$request_uri;
+}
+
+server {
+    server_name             {% for domain in item.domains %} .{{ domain }}{% endfor %};
+    listen                  80;
+    include                 conf.d/letsencrypt.inc;
+
+    location / {
+        return              301 https://{{ item.domains[0] }}$request_uri;
+    }
+}

@@ -1,0 +1,23 @@
+---
+
+# - name: Create domain configs
+#   template:
+#     src: config
+#     dest: "{{ letsencrypt_config_dir}}/{{ item.name }}.ini"
+#   with_items: "{{ wp_network_microsites|default(omit) }}"
+#   when: wp_network_microsites is defined
+#
+# - name: Get certificates
+#   command: "{{letsencrypt_executable}} certonly -n -c {{letsencrypt_config_dir}}/{{ item.name }}.ini"
+#   with_items: "{{ wp_network_microsites|default(omit) }}"
+
+- name: Create microsite nginx configs
+  template:
+    src: "wp_microsite_nginx_template"
+    dest: "/etc/nginx/sites-enabled/wp-{{item.name}}-static.conf"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ wp_network_microsites|default(omit) }}"
+  when: wp_network_microsites is defined
+  notify: Restart nginx

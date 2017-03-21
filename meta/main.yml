@@ -1,0 +1,5 @@
+---
+# Nginx role dependencies
+dependencies:
+  - role: nginx
+  - { role: letsencrypt, letsencrypt_domains_list:  "{{ wp_network_microsites }}" }
