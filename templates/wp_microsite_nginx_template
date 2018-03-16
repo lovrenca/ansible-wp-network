@@ -5,6 +5,7 @@ server {
     ssl_certificate         /etc/letsencrypt/live/{{ item.domains[0] }}/fullchain.pem;
     ssl_certificate_key     /etc/letsencrypt/live/{{ item.domains[0] }}/privkey.pem;
     include                 conf.d/restricted.inc;
+    client_max_body_size    200M;
 
     location / {
         proxy_pass          http://wp-http-pass;
@@ -14,7 +15,7 @@ server {
 }
 
 server {
-    server_name             {% for domain in item.domains[1:] %} {{ domain }}{% endfor %};
+    server_name             *.{{ item.domains[0] }}{% for domain in item.domains[1:] %} {{ domain }}{% endfor %};
     listen                  443 ssl ;
     ssl_certificate         /etc/letsencrypt/live/{{ item.domains[0] }}/fullchain.pem;
     ssl_certificate_key     /etc/letsencrypt/live/{{ item.domains[0] }}/privkey.pem;
